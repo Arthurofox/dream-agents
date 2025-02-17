@@ -1,17 +1,20 @@
 import json
+import os
+from dotenv import load_dotenv
 import openai
 from memory import MemoryDB
 
-# Set your OpenAI API key (replace with your actual key)
-openai.api_key = 'YOUR_OPENAI_API_KEY'
+# Load environment variables from .env and set the OpenAI API key
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def extract_important_information(context_text):
     """
-    Use GPT-4 to extract key points from context text.
+    Use GPT-4 to extract key points from the provided context text.
     Returns a JSON object.
     """
     prompt = (
-        f"Extract the key points from the following text and output in JSON format:\n\n"
+        "Extract the key points from the following text and output in JSON format:\n\n"
         f"{context_text}\n"
     )
     response = openai.ChatCompletion.create(
@@ -22,7 +25,8 @@ def extract_important_information(context_text):
         ],
         temperature=0.7,
     )
-    summary_text = response.choices[0].message['content']
+    # Use the attribute access for message content as per the latest API style.
+    summary_text = response.choices[0].message.content
     try:
         summary_json = json.loads(summary_text)
     except json.JSONDecodeError:
